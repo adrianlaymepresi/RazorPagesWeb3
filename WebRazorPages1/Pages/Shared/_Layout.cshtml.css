@@ -1,6 +1,27 @@
 ﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
+/* Cosas que yo estoy modificando */
+
+:root {
+    --color-turquesa: #40E0D0;
+    --color-azul-noche: #001F3F;
+    --color-morado: #6A0DAD;
+    --color-blanco: #ffffff;
+    --color-gris-claro: #cccccc;
+}
+
+body {
+    background-color: var(--color-azul-noche);
+    color: var(--color-turquesa);
+}
+
+.navbar {
+    background-color: var(--color-morado);
+}
+
+/* hasta acaaa */
+
 a.navbar-brand {
   white-space: normal;
   text-align: center;
@@ -39,10 +60,49 @@ button.accept-policy {
   line-height: inherit;
 }
 
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+/* ===== Footer mínimo ===== */
+.pie-pagina {
+    width: 100%;
 }
+
+.contenedor-pie {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 16px;
+}
+
+.fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.titulo-pie {
+    display: inline-block;
+    margin-right: 8px;
+    color: var(--color-turquesa);
+    font-weight: 600;
+}
+
+.iconos-sociales a {
+    color: var(--color-turquesa);
+    font-size: 1.3rem;
+    margin-right: 12px;
+    transition: color 0.2s ease;
+}
+
+.iconos-sociales a:last-child {
+    margin-right: 0;
+}
+
+.enlace-pie {
+    color: var(--color-turquesa);
+    text-decoration: none;
+}
+
+.texto-derecha {
+    text-align: right;
+}
+
+

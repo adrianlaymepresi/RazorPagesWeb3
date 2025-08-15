@@ -3,10 +3,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - WebRazorPages1</title>
+    <title>@ViewData["Title"] - WebRazorPages_by_Adrian_Layme</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebRazorPages1.styles.css" asp-append-version="true" />
+    <!-- Este link lo uso para traer los iconos de internet -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <body>
     <header>
@@ -36,11 +38,26 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - WebRazorPages1 - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    <footer class="pie-pagina fondo-azul-noche texto-blanco">
+        <div class="contenedor-pie">
+            <div class="fila">
+                <div class="col-izq">
+                    <span class="titulo-pie">Sígueme en mis redes sociales</span>
+                    <div class="iconos-sociales">
+                        <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://github.com/adrianlaymepresi" target="_blank" aria-label="GitHub"><i class="bi bi-github"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-der texto-derecha">
+                    <a class="enlace-pie" asp-area="" asp-page="/Privacy">Política de privacidad</a>
+                </div>
+            </div>
         </div>
     </footer>
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
