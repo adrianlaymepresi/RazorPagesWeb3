@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - WebRazorPages_by_Adrian_Layme</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebRazorPages1.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- Sección superior -->
+    <header class="top-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="site-title"><a class="navbar-brand" asp-area="" asp-page="/Index">MI PANEL DE CONTROL DE TAREAS TO DO LIST</a></h1>
+                <a href="#" class="header-link">TOOLBAR</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="navbar-dark bg-dark">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-light" asp-area="" asp-page="/Index">🏠 Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" asp-area="" asp-page="/Finalizadas">✅ Tareas Finalizadas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" asp-area="" asp-page="/Canceladas">⛔ Tareas Canceladas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" asp-area="" asp-page="/Privacy">🔒 Privacidad</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Contenido Principal -->
+        <div id="content">
+            <button type="button" id="sidebarCollapse" class="btn btn-dark d-lg-none">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+
+            <footer class="border-top footer text-muted">
+                <div class="container">
+                    &copy; 2025 Ignacio Adrian Layme Delgado - <a asp-area="" asp-page="/Privacy">Privacy</a>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
