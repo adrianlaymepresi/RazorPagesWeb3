@@ -1,39 +1,59 @@
 ﻿@page
-@model IndexModel
+@model WebRazorPages1.Pages.IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <!-- ATAJO PARA COMENTAR COMO LO DE ABAJO: CTRL + K + C -->
-    @* <h1 class="display-4">Tareas asignadas</h1> *@
-    <h1 class="display-4">TAREAS ASIGNADAS</h1>  
-    <div class="row">
-        <div class="col-3">
-            Nombre tarea
-        </div>
-        <div class="col-3">
-            Fecha de Vencimiento
-        </div>
-        <div class="col-3">
-            Estado
-        </div>
-        <div class="col-3">
-            Acciones
-        </div>
-    </div>
+<div class="container-fluid">
+    <h2 class="mb-3 titulo-seccion">Tareas Asignadas</h2>
 
-    <!-- Se debe realizar paginacion por estos motivos
-    1. Para seccionarla
-    2. Para no hacer scroll infinito
-    3. Para que no se sature la pagina
-    <table border="1">
-        <thead>
-            <th>Nombre Tarea</th>
-            <th>Fecha de Vencimiento</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </thead>
-    </table>
-    -->
+    <div class="card-tabla p-3">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center mb-0">
+                <thead>
+                    <tr>
+                        <th>Nombre Tarea</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var tarea in Model.ListaDeTareasDeLaPagina)
+                {
+                    <tr>
+                        <td>@tarea.NombreDeLaTarea</td>
+                        <td>@tarea.FechaDeVencimiento</td>
+                        <td>
+                            <span class="badge @(tarea.EstadoDeLaTarea switch {
+                                "Pendiente" => "bg-warning text-dark",
+                                "En curso" => "bg-info",
+                                "Finalizado" => "bg-success",
+                                "Cancelado" => "bg-danger",
+                                _ => "bg-secondary"
+                            })">
+                                @tarea.EstadoDeLaTarea
+                            </span>
+                        </td>
+                        <td class="d-flex justify-content-center gap-3">
+                            <a class="link-contraste" href="#">Editar</a>
+                            <a class="link-contraste" href="#">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= Model.CantidadTotalDePaginas; i++)
+                {
+                    <li class="page-item @(i == Model.NumeroDePaginaActual ? "active" : "")">
+                        <a class="page-link" asp-page="./Index" asp-route-pagina="@i">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
 </div>
