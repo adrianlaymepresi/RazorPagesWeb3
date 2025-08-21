@@ -21,7 +21,7 @@ namespace WebRazorPages1.Pages
         public int CantidadDeRegistrosPorPagina { get; set; } = 5;
 
         [BindProperty(SupportsGet = true, Name = "filtroEstado")]
-        public string FiltroEstado { get; set; } = "";
+        public string FiltroEstado { get; set; } = "Pendiente";
 
         [BindProperty(SupportsGet = true, Name = "pagina")]
         public int Pagina { get; set; } = 1;
@@ -37,10 +37,13 @@ namespace WebRazorPages1.Pages
 
             CargarTareasDesdeJson();
 
+            /*
+            YA NO SERIA NECESARIO REORDENAR POR ESTADO
             if (!string.IsNullOrWhiteSpace(FiltroEstado))
             {
                 ReordenarTareasPorEstado();
-            }
+            } 
+            */
 
             CalcularPaginacion();
             ObtenerTareasPaginaActual();
@@ -54,6 +57,9 @@ namespace WebRazorPages1.Pages
                 var json = System.IO.File.ReadAllText(ruta, Encoding.UTF8);
                 var opt = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 ListaCompletaDeTareas = JsonSerializer.Deserialize<List<Tarea>>(json, opt) ?? new();
+                ListaCompletaDeTareas = ListaCompletaDeTareas
+                .Where(t => t.EstadoDeLaTarea == "Pendiente" || t.EstadoDeLaTarea == "En curso")
+                .ToList();
             }
             catch (Exception ex)
             {
@@ -68,11 +74,12 @@ namespace WebRazorPages1.Pages
                 .Where(t => t.EstadoDeLaTarea.Equals(FiltroEstado, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
+            /*
             var resto = ListaCompletaDeTareas
                 .Where(t => !t.EstadoDeLaTarea.Equals(FiltroEstado, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-
             ListaCompletaDeTareas = priorizadas.Concat(resto).ToList();
+            */
         }
 
         private void CalcularPaginacion()
