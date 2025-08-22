@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text;
 using System.Text.Json;
+using System.Globalization;
 using WebRazorPages1.Models;
+
 
 namespace WebRazorPages1.Pages
 {
@@ -26,6 +28,10 @@ namespace WebRazorPages1.Pages
         [BindProperty(SupportsGet = true, Name = "pagina")]
         public int Pagina { get; set; } = 1;
 
+        [BindProperty(SupportsGet = true, Name = "q")]
+        public string TextoDeBusqueda { get; set; } = "";
+
+
         public IndexModel(ILogger<IndexModel> logger)
         {
             _logger = logger;
@@ -36,15 +42,7 @@ namespace WebRazorPages1.Pages
             CantidadDeRegistrosPorPagina = Math.Clamp(CantidadDeRegistrosPorPagina <= 0 ? 5 : CantidadDeRegistrosPorPagina, 1, 99);
 
             CargarTareasDesdeJson();
-
-            /*
-            YA NO SERIA NECESARIO REORDENAR POR ESTADO
-            if (!string.IsNullOrWhiteSpace(FiltroEstado))
-            {
-                ReordenarTareasPorEstado();
-            } 
-            */
-
+            AplicarBusqueda();
             CalcularPaginacion();
             ObtenerTareasPaginaActual();
         }
@@ -68,20 +66,6 @@ namespace WebRazorPages1.Pages
             }
         }
 
-        private void ReordenarTareasPorEstado()
-        {
-            var priorizadas = ListaCompletaDeTareas
-                .Where(t => t.EstadoDeLaTarea.Equals(FiltroEstado, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            /*
-            var resto = ListaCompletaDeTareas
-                .Where(t => !t.EstadoDeLaTarea.Equals(FiltroEstado, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-            ListaCompletaDeTareas = priorizadas.Concat(resto).ToList();
-            */
-        }
-
         private void CalcularPaginacion()
         {
             NumeroDePaginaActual = Math.Max(1, Pagina);
@@ -99,6 +83,58 @@ namespace WebRazorPages1.Pages
                 .Skip((NumeroDePaginaActual - 1) * CantidadDeRegistrosPorPagina)
                 .Take(CantidadDeRegistrosPorPagina)
                 .ToList();
+        }
+
+        // BUSQUEDA
+        private void AplicarBusqueda()
+        {
+            var termino = (TextoDeBusqueda ?? "").Trim();
+            if (termino.Length == 0) return;
+
+            var terminoNormalizado = NormalizarTexto(termino);
+
+            ListaCompletaDeTareas = FiltrarPorBusqueda(ListaCompletaDeTareas, terminoNormalizado)
+                .OrderBy(t => CalcularRelevancia(NormalizarTexto(t.NombreDeLaTarea ?? ""), terminoNormalizado))
+                .ToList();
+
+            Pagina = 1;
+        }
+
+        private IEnumerable<Tarea> FiltrarPorBusqueda(IEnumerable<Tarea> tareas, string terminoNormalizado)
+        {
+            foreach (var t in tareas)
+            {
+                var nombreNormalizado = NormalizarTexto(t.NombreDeLaTarea ?? "");
+                if (CoincideTexto(nombreNormalizado, terminoNormalizado))
+                    yield return t;
+            }
+        }
+
+        private (int empieza, int indice, int diferenciaLongitud, string nombre) CalcularRelevancia(string nombreNormalizado, string terminoNormalizado)
+        {
+            var comienzaCon = nombreNormalizado.StartsWith(terminoNormalizado, StringComparison.Ordinal) ? 0 : 1;
+            var indice = nombreNormalizado.IndexOf(terminoNormalizado, StringComparison.Ordinal);
+            var diferenciaLongitud = Math.Abs(nombreNormalizado.Length - terminoNormalizado.Length);
+            if (indice < 0) indice = int.MaxValue;
+            return (comienzaCon, indice, diferenciaLongitud, nombreNormalizado);
+        }
+
+        private static bool CoincideTexto(string nombreNormalizado, string terminoNormalizado)
+        {
+            if (string.IsNullOrEmpty(terminoNormalizado)) return true;
+            return nombreNormalizado.IndexOf(terminoNormalizado, StringComparison.Ordinal) >= 0;
+        }
+
+        private static string NormalizarTexto(string texto)
+        {
+            var descompuesto = texto.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder(descompuesto.Length);
+            foreach (var c in descompuesto)
+            {
+                var categoria = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (categoria != UnicodeCategory.NonSpacingMark) sb.Append(c);
+            }
+            return sb.ToString().Normalize(NormalizationForm.FormC).ToLowerInvariant();
         }
     }
 }

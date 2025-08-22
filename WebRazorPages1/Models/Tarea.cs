@@ -4,7 +4,7 @@ namespace WebRazorPages1.Models
 {
     public class Tarea
     {
-        [JsonPropertyName("idTarea")]
+        [JsonPropertyName("idTarea")] 
         public string? IdTarea { get; set; }
 
         [JsonPropertyName("nombreTarea")]
