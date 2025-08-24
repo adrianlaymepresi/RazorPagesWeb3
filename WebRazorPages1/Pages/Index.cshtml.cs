@@ -11,6 +11,10 @@ namespace WebRazorPages1.Pages
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
+        public IndexModel(ILogger<IndexModel> logger)
+        {
+            _logger = logger;
+        }
 
         public List<Tarea> ListaCompletaDeTareas { get; set; } = new();
         public List<Tarea> ListaDeTareasDeLaPagina { get; set; } = new();
@@ -30,12 +34,6 @@ namespace WebRazorPages1.Pages
 
         [BindProperty(SupportsGet = true, Name = "q")]
         public string TextoDeBusqueda { get; set; } = "";
-
-
-        public IndexModel(ILogger<IndexModel> logger)
-        {
-            _logger = logger;
-        }
 
         public void OnGet()
         {
@@ -83,6 +81,86 @@ namespace WebRazorPages1.Pages
                 .Skip((NumeroDePaginaActual - 1) * CantidadDeRegistrosPorPagina)
                 .Take(CantidadDeRegistrosPorPagina)
                 .ToList();
+        }
+        // CREAR NUEVA TAREA
+        public async Task<IActionResult> OnPostCrearAsync(string NuevoNombreDeLaTarea, string NuevaFechaDeVencimiento)
+        {
+            try
+            {
+                var nombre = (NuevoNombreDeLaTarea ?? "").Trim();
+                var fecha = DateTime.ParseExact(NuevaFechaDeVencimiento, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                var nuevaTarea = new Tarea
+                {
+                    IdTarea = Guid.NewGuid().ToString(),
+                    NombreDeLaTarea = nombre,
+                    FechaDeVencimiento = fecha.ToString("dd/MM/yyyy"),
+                    EstadoDeLaTarea = "Pendiente"
+                };
+
+                var ruta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "tareas.json");
+                var json = await System.IO.File.ReadAllTextAsync(ruta, Encoding.UTF8);
+                var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var lista = JsonSerializer.Deserialize<List<Tarea>>(json, opciones) ?? new List<Tarea>();
+
+                lista.Insert(0, nuevaTarea);
+
+                var jsonSalida = JsonSerializer.Serialize(lista, new JsonSerializerOptions { WriteIndented = true });
+                await System.IO.File.WriteAllTextAsync(ruta, jsonSalida, new UTF8Encoding(false));
+
+                return RedirectToPage("./Index");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"No se pudo crear la tarea: {ex.Message}");
+                CargarTareasDesdeJson();
+                CalcularPaginacion();
+                ObtenerTareasPaginaActual();
+                return Page();
+            }
+        }
+
+        // EDITAR TAREA
+        public string ConvertirAFechaISO(string fechaDDMMYYYY)
+        {
+            if (DateTime.TryParseExact(fechaDDMMYYYY, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var fecha))
+                return fecha.ToString("yyyy-MM-dd");
+            return DateTime.Today.ToString("yyyy-MM-dd");
+        }
+
+        public async Task<IActionResult> OnPostEditarAsync(string IdTareaEditar, string NombreEditadoDeLaTarea, string FechaEditadaDeVencimiento)
+        {
+            try
+            {
+                var nombre = (NombreEditadoDeLaTarea ?? "").Trim();
+                var fecha = DateTime.ParseExact(FechaEditadaDeVencimiento, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                var ruta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "tareas.json");
+                var json = await System.IO.File.ReadAllTextAsync(ruta, Encoding.UTF8);
+                var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var lista = JsonSerializer.Deserialize<List<Tarea>>(json, opciones) ?? new List<Tarea>();
+
+                var tarea = lista.FirstOrDefault(t => t.IdTarea == IdTareaEditar);
+                if (tarea == null)
+                    throw new InvalidOperationException("No se encontró la tarea a editar.");
+
+                tarea.NombreDeLaTarea = nombre;
+                tarea.FechaDeVencimiento = fecha.ToString("dd/MM/yyyy");
+
+                var jsonSalida = JsonSerializer.Serialize(lista, new JsonSerializerOptions { WriteIndented = true });
+                await System.IO.File.WriteAllTextAsync(ruta, jsonSalida, new UTF8Encoding(false));
+
+                return RedirectToPage("./Index");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"No se pudo editar la tarea: {ex.Message}");
+                CargarTareasDesdeJson();
+                AplicarBusqueda();
+                CalcularPaginacion();
+                ObtenerTareasPaginaActual();
+                return Page();
+            }
         }
 
         // BUSQUEDA

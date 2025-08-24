@@ -16,7 +16,6 @@
                 type="number"
                 min="1"
                 max="99"
-                maxlength="2"
                 inputmode="numeric"
                 placeholder="5"
                 value="@(Model.CantidadDeRegistrosPorPagina)"
@@ -26,7 +25,9 @@
             <input type="hidden" name="q" value="@(Model.TextoDeBusqueda)" />
             <input type="hidden" name="pagina" value="1" />
             <button type="submit" class="btn btn-sm btn-primary text-nowrap">👁️ Aplicar</button>
-            <button class="btn btn-sm btn-success text-nowrap">➕ Nueva Tarea</button>
+            <button type="button" class="btn btn-sm btn-success text-nowrap" data-bs-toggle="modal" data-bs-target="#modalNuevaTarea">
+                    ➕ Nueva Tarea
+            </button>
         </form>
     </div>
 
@@ -95,7 +96,15 @@
                             </span>
                         </td>
                         <td class="d-flex justify-content-center gap-2">
-                            <button class="btn btn-sm btn-success">✅ Editar</button>
+                            <button type="button"
+                                    class="btn btn-sm btn-success btn-abrir-edicion"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEditarTarea"
+                                    data-id="@tarea.IdTarea"
+                                    data-nombre="@tarea.NombreDeLaTarea"
+                                    data-fecha-iso="@Model.ConvertirAFechaISO(tarea.FechaDeVencimiento)">
+                                ✅ Editar
+                            </button>
                             <button class="btn btn-sm btn-danger">🗑️ Eliminar</button>
                         </td>
                     </tr>
@@ -106,24 +115,156 @@
     </div>
 </div>
 
+<!-- Modal Crear Tarea -->
+<div class="modal fade" id="modalNuevaTarea" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:#0f1113; color:#f8f9fa; border:1px solid #2b2f33;">
+      <div class="modal-header" style="background: linear-gradient(90deg, #2c3e50, #6c5ce7); color:#f8f9fa;">
+        <h5 class="modal-title">Crear nueva tarea</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <form method="post" asp-page-handler="Crear" class="modal-body d-flex flex-column gap-3">
+        <div>
+          <label for="NuevoNombreDeLaTarea" class="form-label m-0">Nombre de la tarea</label>
+          <input id="NuevoNombreDeLaTarea"
+                 name="NuevoNombreDeLaTarea"
+                 class="form-control"
+                 type="text"
+                 maxlength="50"
+                 required
+                 placeholder="Ej: Escribir informe semanal"
+                 oninvalid="this.setCustomValidity('El nombre es obligatorio (máx. 50).')"
+                 oninput="this.setCustomValidity('')"/>
+          <div class="form-text text-secondary">Máximo 50 caracteres.</div>
+        </div>
+
+        <div>
+          <label for="NuevaFechaDeVencimiento" class="form-label m-0">Fecha de vencimiento</label>
+          <input id="NuevaFechaDeVencimiento"
+               name="NuevaFechaDeVencimiento"
+               class="form-control"
+               type="date"
+               min="@DateTime.Today.ToString("yyyy-MM-dd")"
+               value="@DateTime.Today.ToString("yyyy-MM-dd")"
+               required
+               oninvalid="this.setCustomValidity('La fecha debe ser hoy o futura.')"
+               oninput="this.setCustomValidity('')"/>
+          <div class="form-text text-secondary">Solo fechas desde hoy en adelante.</div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-2">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">✅ Crear Tarea</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Tarea -->
+<div class="modal fade" id="modalEditarTarea" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:#0f1113; color:#f8f9fa; border:1px solid #2b2f33;">
+      <div class="modal-header" style="background: linear-gradient(90deg, #2c3e50, #6c5ce7); color:#f8f9fa;">
+        <h5 class="modal-title">Editar tarea</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <form method="post" asp-page-handler="Editar" class="modal-body d-flex flex-column gap-3">
+        <!-- ID oculto -->
+        <input type="hidden" id="IdTareaEditar" name="IdTareaEditar" />
+
+        <div>
+          <label for="NombreEditadoDeLaTarea" class="form-label m-0">Nombre de la tarea</label>
+          <input id="NombreEditadoDeLaTarea"
+                 name="NombreEditadoDeLaTarea"
+                 class="form-control"
+                 type="text"
+                 maxlength="50"
+                 required
+                 placeholder="Ej: Escribir informe semanal"
+                 oninvalid="this.setCustomValidity('El nombre es obligatorio (máx. 50).')"
+                 oninput="this.setCustomValidity('')" />
+          <div class="form-text text-secondary">Máximo 50 caracteres.</div>
+        </div>
+
+        <div>
+          <label for="FechaEditadaDeVencimiento" class="form-label m-0">Fecha de vencimiento</label>
+          <input id="FechaEditadaDeVencimiento"
+                 name="FechaEditadaDeVencimiento"
+                 class="form-control"
+                 type="date"
+                 min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                 required
+                 oninvalid="this.setCustomValidity('La fecha debe ser hoy o futura.')"
+                 oninput="this.setCustomValidity('')" />
+          <div class="form-text text-secondary">Solo fechas desde hoy en adelante.</div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-2">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">💾 Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 @section Scripts{
 <script>
 (() => {
     const formularioBusqueda = document.getElementById('formulario-busqueda');
     const campoBusqueda = document.getElementById('q');
     let temporizadorEspera;
-    const retardoMilisegundos = 600;
+    const esperaMilisegundos = 600;
+
+    if (campoBusqueda) {
+        campoBusqueda.focus();
+        const valor = campoBusqueda.value;
+        campoBusqueda.value = '';
+        campoBusqueda.value = valor;
+    }
 
     if (formularioBusqueda && campoBusqueda) {
         campoBusqueda.addEventListener('input', () => {
             clearTimeout(temporizadorEspera);
             temporizadorEspera = setTimeout(() => {
                 // Cambiar a página 1 al buscar
-                document.querySelector('input[name="pagina"]').value = "1";
-                formularioBusqueda.submit();
-            }, retardoMilisegundos);
+                formularioBusqueda.querySelector('input[name="pagina"]').value = "1";
+                formularioBusqueda.submit();               
+            }, esperaMilisegundos);
         });
     }
+})();
+</script>
+<script>
+(() => {
+  const modalEditar = document.getElementById('modalEditarTarea');
+  if (!modalEditar) return;
+
+  modalEditar.addEventListener('show.bs.modal', (evento) => {
+    const boton = evento.relatedTarget;
+    if (!boton) return;
+
+    const id = boton.getAttribute('data-id');
+    const nombre = boton.getAttribute('data-nombre');
+    const fechaISO = boton.getAttribute('data-fecha-iso');
+
+    const campoId = modalEditar.querySelector('#IdTareaEditar');
+    const campoNombre = modalEditar.querySelector('#NombreEditadoDeLaTarea');
+    const campoFecha = modalEditar.querySelector('#FechaEditadaDeVencimiento');
+
+    if (campoId) campoId.value = id || '';
+    if (campoNombre) {
+      campoNombre.value = nombre || '';
+      const v = campoNombre.value;
+      campoNombre.value = '';
+      campoNombre.value = v;
+      campoNombre.focus();
+    }
+    if (campoFecha) campoFecha.value = fechaISO || new Date().toISOString().slice(0,10);
+  });
 })();
 </script>
 }

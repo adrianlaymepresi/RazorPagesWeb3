@@ -17,7 +17,7 @@ body {
 
 /* Header */
 .top-header {
-    background: linear-gradient(90deg, #2c3e50, #6c5ce7);
+    background: linear-gradient(90deg, #ffffff, #6c5ce7);
     color: #f8f9fa;
     position: fixed;
     top: 0;
